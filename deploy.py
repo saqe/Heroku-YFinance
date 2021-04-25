@@ -1,11 +1,5 @@
 import requests as re
 from bs4 import BeautifulSoup
-import json
-import csv
-import os
-import yfinance as yf
-import time
-import pandas as pd
 from flask import Flask, request, jsonify,Response
 
 app = Flask(__name__)
@@ -38,7 +32,6 @@ def getSummary(ticker):
         dataDict[name.text.strip()]=value.text.strip()
     return dataDict
 
-
 @app.route('/api/v1/summary/', methods=['GET'])
 def summary():
     # Retrieve the name from url parameter
@@ -46,19 +39,6 @@ def summary():
     response=getSummary(ticker)
     return jsonify(response)
 
-@app.route('/api/v1/historical-data/', methods=['GET'])
-def getHistoricalData():
-    ticker = request.args.get("ticker", None)
-    tick = yf.Ticker(ticker)
-    try:
-      df=tick.history(period="max")
-    except ValueError as e:
-      if 'No data found, symbol may be delisted' in str(e):
-          return Response({'error':ticker+' not found'}, status=404, mimetype='application/json')
-      df=tick.history(period="5Y")
-    print(df.head())
-    return Response(df.to_json(orient='table',index=True), status=200, mimetype='application/json')
-      
 @app.route('/', methods=['GET'])
 def index():
     return "<h1>Welcome to our server !!, Please use the API to do tasks</h1>"
